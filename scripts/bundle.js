@@ -32585,34 +32585,98 @@ module.exports = React.createClass({
 var React = require('react');
 
 module.exports = React.createClass({
-	displayName: "exports",
+  displayName: "exports",
 
-	render: function render() {
-		return React.createElement(
-			"div",
-			{ className: "container" },
-			React.createElement(
-				"div",
-				{ className: "row" },
-				React.createElement(
-					"h1",
-					null,
-					"Login"
-				)
-			)
-		);
-	}
+  getInitialState: function getInitialState() {
+    return { error: null };
+  },
+  render: function render() {
+    var errorElement = null;
+    if (this.state.error) {
+      errorElement = React.createElement(
+        "p",
+        { className: "red" },
+        this.state.error
+      );
+    }
+    return React.createElement(
+      "div",
+      { className: "container" },
+      React.createElement(
+        "div",
+        { className: "row" },
+        React.createElement(
+          "h1",
+          null,
+          "Login"
+        ),
+        errorElement,
+        React.createElement(
+          "form",
+          { onSubmit: this.onLogin },
+          React.createElement("input", { type: "text", ref: "email", placeholder: "Email" }),
+          React.createElement("input", { type: "password", ref: "password", placeholder: "Password" }),
+          React.createElement(
+            "button",
+            { type: "submit", className: "btn" },
+            "Login"
+          )
+        )
+      )
+    );
+  },
+  onLogin: function onLogin(e) {
+    var self = this;
+    e.preventDefault();
+    var pass = this.refs.password.getDOMNode().value;
+    var username = this.refs.email.getDOMNode().value;
+    Parse.User.logIn(username, pass, {
+      success: function success(user) {
+        self.props.router.navigate('dashboard', { trigger: true });
+      },
+      error: function error(user, err) {
+        self.setState({
+          error: err.message
+        });
+      }
+    });
+  }
 });
 
 },{"react":159}],163:[function(require,module,exports){
 "use strict";
 
 var React = require('react');
-
+var logButton;
+var dashBoard;
+var register;
 module.exports = React.createClass({
 	displayName: "exports",
 
 	render: function render() {
+		if (Parse.User.current() !== null) {
+			logButton = React.createElement(
+				"a",
+				{ href: "#logout", ref: "Logout", onClick: this.logout },
+				"Logout"
+			);
+			dashBoard = React.createElement(
+				"a",
+				{ href: "#dashboard", ref: "Dashboard" },
+				"Dashboard"
+			);
+		} else {
+			logButton = React.createElement(
+				"a",
+				{ href: "#login", ref: "Login" },
+				"Login"
+			);
+			register = React.createElement(
+				"a",
+				{ href: "#register", ref: "Register" },
+				"Register"
+			);
+		}
 		return React.createElement(
 			"div",
 			{ className: "nav-wrapper" },
@@ -32635,33 +32699,25 @@ module.exports = React.createClass({
 				),
 				React.createElement(
 					"li",
-					null,
-					React.createElement(
-						"a",
-						{ href: "#dashboard" },
-						"Dashboard"
-					)
+					{ ref: "logbutton" },
+					logButton
 				),
 				React.createElement(
 					"li",
-					null,
-					React.createElement(
-						"a",
-						{ href: "#login" },
-						"Login"
-					)
+					{ ref: "dashboard" },
+					dashBoard
 				),
 				React.createElement(
 					"li",
-					null,
-					React.createElement(
-						"a",
-						{ href: "#register" },
-						"Register"
-					)
+					{ ref: "register" },
+					register
 				)
 			)
 		);
+	},
+	logout: function logout() {
+		Parse.User.logOut();
+		this.forceUpdate();
 	}
 });
 
@@ -32745,8 +32801,7 @@ module.exports = React.createClass({
 		var _this = this;
 
 		e.preventDefault();
-		var user = new Parse.User();
-		user.signUp({
+		Parse.User.signUp({
 			username: this.refs.email.getDOMNode().value,
 			password: this.refs.password.getDOMNode().value,
 			email: this.refs.email.getDOMNode().value
@@ -32769,13 +32824,12 @@ var React = require('react');
 var Backbone = require('backbone');
 window.$ = require('jquery');
 window.jQuery = $;
-
+Parse.initialize("SMxDXFDMZo8twthOB1IPYisgT9RrS5Kca4z0TV3y", "dyJGje0lS5wVilTmmO5fCR75I9VgqCs1BCKuxIWr");
 var NavigationComponent = require('./components/NavigationComponent');
 var HomeComponent = require('./components/HomeComponent');
 var DashboardComponent = require('./components/DashboardComponent');
 var LoginComponent = require('./components/LoginComponent');
 var RegisterComponent = require('./components/RegisterComponent');
-
 var app = document.getElementById('app');
 
 React.render(React.createElement(NavigationComponent, null), document.getElementById('nav'));
@@ -32785,19 +32839,28 @@ var Router = Backbone.Router.extend({
 		'': 'home',
 		'dashboard': 'dashboard',
 		'login': 'login',
-		'register': 'register'
+		'register': 'register',
+		'logout': 'logout'
 	},
 	home: function home() {
 		React.render(React.createElement(HomeComponent, null), app);
 	},
 	dashboard: function dashboard() {
-		React.render(React.createElement(DashboardComponent, null), app);
+		if (Parse.User.current() === null) {
+			r.navigate('login', { trigger: true });
+		} else {
+			React.render(React.createElement(DashboardComponent, null), app);
+		}
 	},
 	login: function login() {
-		React.render(React.createElement(LoginComponent, null), app);
+		React.render(React.createElement(LoginComponent, { router: r }), app);
 	},
 	register: function register() {
 		React.render(React.createElement(RegisterComponent, { router: r }), app);
+	},
+	logout: function logout() {
+		Parse.User.logOut();
+		r.navigate('', { trigger: true });
 	}
 });
 
