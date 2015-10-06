@@ -1,7 +1,6 @@
 var React = require('react');
 var logButton;
 var dashBoard;
-var register;
 module.exports = React.createClass({
 	render: function() {
 		if (Parse.User.current() !== null){
@@ -9,7 +8,7 @@ module.exports = React.createClass({
 			dashBoard = (<a href="#dashboard" ref="Dashboard">Dashboard</a>);
 		}else{
 			logButton =	(<a href="#login" ref="Login">Login</a>);
-			register =	(<a href="#register" ref="Register">Register</a>);
+			dashBoard =	(<a href="#register" ref="Register">Register</a>);
 		}
 		return (
 			<div className="nav-wrapper">
@@ -17,8 +16,7 @@ module.exports = React.createClass({
 				<ul id="nav-mobile" className="right">
 					<li><a href="#">Home</a></li>
 					<li ref="logbutton">{logButton}</li>
-					<li ref="dashboard">{dashBoard}</li>
-					<li ref="register">{register}</li>
+					<li ref="register">{dashBoard}</li>
 				</ul>
 			</div>
 		);

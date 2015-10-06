@@ -32649,7 +32649,6 @@ module.exports = React.createClass({
 var React = require('react');
 var logButton;
 var dashBoard;
-var register;
 module.exports = React.createClass({
 	displayName: "exports",
 
@@ -32671,7 +32670,7 @@ module.exports = React.createClass({
 				{ href: "#login", ref: "Login" },
 				"Login"
 			);
-			register = React.createElement(
+			dashBoard = React.createElement(
 				"a",
 				{ href: "#register", ref: "Register" },
 				"Register"
@@ -32704,13 +32703,8 @@ module.exports = React.createClass({
 				),
 				React.createElement(
 					"li",
-					{ ref: "dashboard" },
-					dashBoard
-				),
-				React.createElement(
-					"li",
 					{ ref: "register" },
-					register
+					dashBoard
 				)
 			)
 		);
